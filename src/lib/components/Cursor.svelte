@@ -1,33 +1,27 @@
 <script lang="ts">
 	import { gsap } from 'gsap';
+	import { isCustomCursorEnabled } from '$lib/stores';
 
 	let cursorEl: HTMLDivElement;
 	let followerEl: HTMLDivElement;
 	let isHovering = $state(false);
 
-	// Используем $effect, который сработает один раз при монтировании компонента
 	$effect(() => {
-		// --- НАША НОВАЯ ЛОГИКА ---
-		// Принудительно прячем курсор на всем документе
+		if (!$isCustomCursorEnabled) {
+			document.documentElement.style.cursor = '';
+			return;
+		}
+
 		document.documentElement.style.cursor = 'none';
-        
-        // Дополнительно вешаем обработчик, чтобы подавлять любые попытки
-        // других скриптов или стилей вернуть курсор
-		document.addEventListener('mouseover', () => {
-			if (document.documentElement.style.cursor !== 'none') {
-				document.documentElement.style.cursor = 'none';
-			}
-		});
-        // -------------------------
 
 		const pos = { x: window.innerWidth / 2, y: window.innerHeight / 2 };
 		const mouse = { x: pos.x, y: pos.y };
 		const speed = 0.1;
 
-		const xSet = gsap.quickSetter(followerEl, "x", "px");
-		const ySet = gsap.quickSetter(followerEl, "y", "px");
-        const xSetDot = gsap.quickSetter(cursorEl, "x", "px");
-        const ySetDot = gsap.quickSetter(cursorEl, "y", "px");
+		const xSet = gsap.quickSetter(followerEl, 'x', 'px');
+		const ySet = gsap.quickSetter(followerEl, 'y', 'px');
+		const xSetDot = gsap.quickSetter(cursorEl, 'x', 'px');
+		const ySetDot = gsap.quickSetter(cursorEl, 'y', 'px');
 
 		const onMouseMove = (e: MouseEvent) => {
 			mouse.x = e.clientX;
@@ -41,40 +35,42 @@
 			pos.y += (mouse.y - pos.y) * dt;
 			xSet(pos.x);
 			ySet(pos.y);
-            xSetDot(mouse.x);
-            ySetDot(mouse.y);
+			xSetDot(mouse.x);
+			ySetDot(mouse.y);
 		};
 		gsap.ticker.add(update);
 
-		const onMouseEnter = () => isHovering = true;
-		const onMouseLeave = () => isHovering = false;
+		const onMouseEnter = () => (isHovering = true);
+		const onMouseLeave = () => (isHovering = false);
 
 		const interactiveElements = document.querySelectorAll('a, button, [role="button"]');
 		interactiveElements.forEach((el) => {
 			el.addEventListener('mouseenter', onMouseEnter);
 			el.addEventListener('mouseleave', onMouseLeave);
-            // Дополнительно для надежности
-            (el as HTMLElement).style.cursor = 'none';
+			(el as HTMLElement).style.cursor = 'none';
 		});
 
 		return () => {
 			window.removeEventListener('mousemove', onMouseMove);
 			gsap.ticker.remove(update);
 			interactiveElements.forEach((el) => {
-                el.removeEventListener('mouseenter', onMouseEnter);
-                el.removeEventListener('mouseleave', onMouseLeave);
-            });
-            // Возвращаем курсор при уходе со страницы (на всякий случай)
-            document.documentElement.style.cursor = '';
+				el.removeEventListener('mouseenter', onMouseEnter);
+				el.removeEventListener('mouseleave', onMouseLeave);
+				// --- ✨ ВОТ ИСПРАВЛЕНИЕ: Возвращаем курсор для интерактивных элементов ---
+				(el as HTMLElement).style.cursor = '';
+			});
+			document.documentElement.style.cursor = '';
 		};
 	});
 </script>
 
-<div class="cursor-dot" bind:this={cursorEl}></div>
-<div class="cursor-follower" class:hovering={isHovering} bind:this={followerEl}></div>
-
+{#if $isCustomCursorEnabled}
+	<div class="cursor-dot" bind:this={cursorEl}></div>
+	<div class="cursor-follower" class:hovering={isHovering} bind:this={followerEl}></div>
+{/if}
 
 <style>
+	/* Стили остаются без изменений */
 	.cursor-dot,
 	.cursor-follower {
 		position: fixed;

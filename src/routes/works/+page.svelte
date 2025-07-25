@@ -96,6 +96,14 @@
 		color: rgba(240, 234, 214, 0.5);
 	}
 
+    h1 {
+		font-family: var(--font-primary);
+		font-size: clamp(3rem, 10vw, 6.5rem);
+		margin-bottom: 1rem;
+		/* --- ✨ И ЗДЕСЬ ТАКАЯ ЖЕ МЕТКА ✨ --- */
+		view-transition-name: works-title;
+	}
+
 	/* --- Адаптивность --- */
 	@media (max-width: 480px) {
 		.category-buttons {

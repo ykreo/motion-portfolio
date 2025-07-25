@@ -9,6 +9,23 @@
 	let activeSection = $state('');
 	let isMenuOpen = $state(false);
 
+	// --- НАША НОВАЯ ЛОГИКА ---
+	let isScrolled = $state(false);
+
+	$effect(() => {
+		const handleScroll = () => {
+			isScrolled = window.scrollY > 10;
+		};
+
+		window.addEventListener('scroll', handleScroll, { passive: true });
+
+		// Функция очистки, которая удалит обработчик, когда компонент будет уничтожен
+		return () => {
+			window.removeEventListener('scroll', handleScroll);
+		};
+	});
+	// --- КОНЕЦ НОВОЙ ЛОГИКИ ---
+
 	$effect(() => {
 		if (pathname !== '/') {
 			activeSection = '';
@@ -61,7 +78,7 @@
 	}
 </script>
 
-<header>
+<header class:scrolled={isScrolled}>
 	<div class="header-container">
 		<a
 			href="/"
@@ -142,6 +159,15 @@
 		border-radius: 50px;
 		border: 1px solid var(--border-color);
 		box-shadow: inset 0 1px 1px rgba(240, 234, 214, 0.1);
+		/* --- ✨ НОВЫЙ СТИЛЬ ДЛЯ ПЕРЕХОДА ТЕНИ ✨ --- */
+		transition: box-shadow 0.3s ease-out;
+	}
+
+    /* --- ✨ НОВЫЕ СТИЛИ ДЛЯ ТЕНИ ПРИ СКРОЛЛЕ ✨ --- */
+	header.scrolled .header-container {
+		box-shadow:
+			inset 0 1px 1px rgba(240, 234, 214, 0.1),
+			0 4px 15px rgba(0, 0, 0, 0.2);
 	}
 	
 	/* --- ✨ НОВЫЕ СТИЛИ ДЛЯ ВЫРАВНИВАНИЯ ЛОГОТИПА ✨ --- */

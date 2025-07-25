@@ -76,4 +76,12 @@
 	.cta-button:hover {
 		transform: scale(1.05);
 	}
+
+    .works-promo-container h2 {
+		font-family: var(--font-primary);
+		font-size: clamp(2.5rem, 8vw, 5rem);
+		margin-bottom: 3rem;
+		/* --- ✨ ВОТ НАША МЕТКА ✨ --- */
+		view-transition-name: works-title;
+	}
 </style>

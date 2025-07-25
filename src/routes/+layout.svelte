@@ -2,12 +2,12 @@
 	import '$styles/global.css';
 	import Header from '$components/Header.svelte';
 	import Cursor from '$components/Cursor.svelte';
-	import Transition from '$components/Transition.svelte';
+	// import Transition from '$components/Transition.svelte'; // <-- УДАЛИ ЭТУ СТРОКУ
 	import Background3D from '$components/Background3D.svelte';
+	import CursorToggle from '$components/CursorToggle.svelte';
 	import { locale, waitLocale } from 'svelte-i18n';
 	import '$lib/i18n';
 
-	// ИЗМЕНЕНИЕ ЗДЕСЬ: Объявляем, что компонент принимает 'children'
 	let { children } = $props();
 
 	$effect(() => {
@@ -20,9 +20,9 @@
 
 {#if $locale}
 	<Cursor />
-	<Transition />
 	<Background3D />
 	<Header />
+	<CursorToggle />
 
 	<main>
 		{@render children()}

@@ -19,7 +19,7 @@
 				<button>{$t('works.categories.static')}</button>
 			</div>
 		</div>
-		</div>
+	</div>
 
 	<div class="gallery-placeholder">
 		<p>{$t('works.placeholder')}</p>
@@ -94,5 +94,14 @@
 		border: 2px dashed var(--border-color);
 		border-radius: 20px;
 		color: rgba(240, 234, 214, 0.5);
+	}
+
+	/* --- Адаптивность --- */
+	@media (max-width: 480px) {
+		.category-buttons {
+			flex-wrap: wrap;
+			justify-content: center;
+			border-radius: 30px; /* Сделаем скругление чуть меньше */
+		}
 	}
 </style>

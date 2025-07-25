@@ -3,13 +3,13 @@
 	import LanguageSwitcher from '$lib/components/LanguageSwitcher.svelte';
 	import { page } from '$app/stores';
 	import { t } from 'svelte-i18n';
-	import { Linkedin, Send } from 'lucide-svelte';
-	import { onMount } from 'svelte';
+	import { Linkedin, Send, Menu, X } from 'lucide-svelte';
 
 	const pathname = $derived($page.url.pathname);
 	let activeSection = $state('');
+	let isMenuOpen = $state(false);
 
-	onMount(() => {
+	$effect(() => {
 		if (pathname !== '/') {
 			activeSection = '';
 			return;
@@ -32,14 +32,10 @@
 			}
 		);
 
-		sections.forEach((section) => {
-			observer.observe(section);
-		});
+		sections.forEach((section) => observer.observe(section));
 
 		return () => {
-			sections.forEach((section) => {
-				observer.unobserve(section);
-			});
+			sections.forEach((section) => observer.unobserve(section));
 		};
 	});
 
@@ -58,11 +54,16 @@
 			event.preventDefault();
 			scrollTo(selector);
 		}
+		isMenuOpen = false; // Закрываем меню при клике
+	}
+
+	function handleRegularNav() {
+		isMenuOpen = false; // Закрываем меню при клике
 	}
 </script>
 
 <header>
-	<nav>
+	<div class="header-container">
 		<a
 			href="/"
 			class="logo-link"
@@ -71,37 +72,50 @@
 		>
 			<Logo />
 		</a>
-		<ul class="nav-links">
-			<li>
-				<a
-					href="/#home"
-					class:active={pathname === '/' && (activeSection === 'home' || activeSection === '')}
-					onclick={(e) => handleHomeNav(e, '#home')}>{$t('nav.home')}</a
-				>
-			</li>
-			<li>
-				<a
-					href="/works"
-					class:active={pathname.startsWith('/works') ||
-						(pathname === '/' && activeSection === 'works-promo')}>{$t('nav.works')}</a
-				>
-			</li>
-			<li>
-				<a href="/resume" class:active={pathname.startsWith('/resume')}>{$t('nav.resume')}</a>
-			</li>
-		</ul>
-		<div class="controls">
-			<div class="social-links">
-				<a href={TELEGRAM_URL} target="_blank" rel="noopener noreferrer" aria-label="Telegram">
-					<Send size={20} />
-				</a>
-				<a href={LINKEDIN_URL} target="_blank" rel="noopener noreferrer" aria-label="LinkedIn">
-					<Linkedin size={20} />
-				</a>
+
+		<nav class:open={isMenuOpen}>
+			<ul class="nav-links">
+				<li>
+					<a
+						href="/#home"
+						class:active={pathname === '/' && (activeSection === 'home' || activeSection === '')}
+						onclick={(e) => handleHomeNav(e, '#home')}>{$t('nav.home')}</a
+					>
+				</li>
+				<li>
+					<a
+						href="/works"
+						class:active={pathname.startsWith('/works') || (pathname === '/' && activeSection === 'works-promo')}
+						onclick={handleRegularNav}>{$t('nav.works')}</a
+					>
+				</li>
+				<li>
+					<a href="/resume" class:active={pathname.startsWith('/resume')} onclick={handleRegularNav}
+						>{$t('nav.resume')}</a
+					>
+				</li>
+			</ul>
+			<div class="controls">
+				<div class="social-links">
+					<a href={TELEGRAM_URL} target="_blank" rel="noopener noreferrer" aria-label="Telegram">
+						<Send size={20} />
+					</a>
+					<a href={LINKEDIN_URL} target="_blank" rel="noopener noreferrer" aria-label="LinkedIn">
+						<Linkedin size={20} />
+					</a>
+				</div>
+				<LanguageSwitcher />
 			</div>
-			<LanguageSwitcher />
-		</div>
-	</nav>
+		</nav>
+
+		<button class="burger-menu" onclick={() => (isMenuOpen = !isMenuOpen)} aria-label="Меню">
+			{#if isMenuOpen}
+				<X size={28} />
+			{:else}
+				<Menu size={28} />
+			{/if}
+		</button>
+	</div>
 </header>
 
 <style>
@@ -110,15 +124,20 @@
 		top: 0;
 		left: 0;
 		width: 100%;
-		padding: 2rem 3rem;
+		padding: 2rem;
 		z-index: 100;
 	}
-	nav {
+	.header-container {
 		max-width: 1400px;
 		margin: 0 auto;
 		display: flex;
 		justify-content: space-between;
 		align-items: center;
+	}
+	nav {
+		display: flex;
+		align-items: center;
+		gap: 2.5rem;
 	}
 	.nav-links {
 		display: flex;
@@ -172,5 +191,59 @@
 	.social-links a:hover {
 		opacity: 1;
 		transform: scale(1.1);
+	}
+	.burger-menu {
+		display: none;
+		background: none;
+		border: none;
+		color: var(--text-color);
+		cursor: pointer;
+		z-index: 101; /* Выше чем nav */
+	}
+
+	/* --- Адаптивность --- */
+	@media (max-width: 768px) {
+		header {
+			padding: 1.5rem;
+		}
+		.burger-menu {
+			display: block;
+		}
+		nav {
+			position: fixed;
+			top: 0;
+			right: 0;
+			width: 100%;
+			height: 100%;
+			background-color: rgba(18, 18, 18, 0.95);
+			backdrop-filter: blur(10px);
+			flex-direction: column;
+			justify-content: center;
+			align-items: center;
+			gap: 4rem;
+			transform: translateX(100%);
+			transition: transform 0.3s ease-in-out;
+		}
+		nav.open {
+			transform: translateX(0);
+		}
+		.nav-links {
+			flex-direction: column;
+			text-align: center;
+			gap: 2rem;
+		}
+		.nav-links a {
+			font-size: 1.5rem;
+		}
+		.controls {
+			flex-direction: column;
+			gap: 3rem;
+		}
+		.social-links {
+			gap: 2.5rem;
+		}
+		.social-links a {
+			transform: scale(1.2);
+		}
 	}
 </style>

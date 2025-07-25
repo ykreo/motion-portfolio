@@ -38,7 +38,6 @@
 			sections.forEach((section) => observer.unobserve(section));
 		};
 	});
-
 	const TELEGRAM_URL = 'https://t.me/ykreo';
 	const LINKEDIN_URL = 'https://www.linkedin.com/in/converticube/';
 
@@ -54,11 +53,11 @@
 			event.preventDefault();
 			scrollTo(selector);
 		}
-		isMenuOpen = false; // Закрываем меню при клике
+		isMenuOpen = false;
 	}
 
 	function handleRegularNav() {
-		isMenuOpen = false; // Закрываем меню при клике
+		isMenuOpen = false;
 	}
 </script>
 
@@ -85,7 +84,8 @@
 				<li>
 					<a
 						href="/works"
-						class:active={pathname.startsWith('/works') || (pathname === '/' && activeSection === 'works-promo')}
+						class:active={pathname.startsWith('/works') ||
+							(pathname === '/' && activeSection === 'works-promo')}
 						onclick={handleRegularNav}>{$t('nav.works')}</a
 					>
 				</li>
@@ -120,20 +120,36 @@
 
 <style>
 	header {
-		position: fixed;
-		top: 0;
+		position: sticky;
+		top: 1.5rem;
 		left: 0;
 		width: 100%;
-		padding: 2rem;
+		padding: 0 2rem;
 		z-index: 100;
+		transition: top 0.3s ease;
 	}
+
 	.header-container {
 		max-width: 1400px;
 		margin: 0 auto;
 		display: flex;
 		justify-content: space-between;
 		align-items: center;
+		padding: 1rem 2.5rem;
+		background-color: rgba(30, 30, 30, 0.65);
+		backdrop-filter: blur(12px);
+		-webkit-backdrop-filter: blur(12px);
+		border-radius: 50px;
+		border: 1px solid var(--border-color);
+		box-shadow: inset 0 1px 1px rgba(240, 234, 214, 0.1);
 	}
+	
+	/* --- ✨ НОВЫЕ СТИЛИ ДЛЯ ВЫРАВНИВАНИЯ ЛОГОТИПА ✨ --- */
+	.logo-link {
+		display: flex;
+		align-items: center;
+	}
+
 	nav {
 		display: flex;
 		align-items: center;
@@ -198,13 +214,23 @@
 		border: none;
 		color: var(--text-color);
 		cursor: pointer;
-		z-index: 101; /* Выше чем nav */
+		z-index: 101;
 	}
 
 	/* --- Адаптивность --- */
+	@media (max-width: 1024px) {
+		.header-container {
+			padding: 0.75rem 2rem;
+		}
+	}
+
 	@media (max-width: 768px) {
 		header {
-			padding: 1.5rem;
+			padding: 0 1.5rem;
+			top: 1rem;
+		}
+		.header-container {
+			padding: 0.5rem 1.5rem;
 		}
 		.burger-menu {
 			display: block;
@@ -215,8 +241,9 @@
 			right: 0;
 			width: 100%;
 			height: 100%;
-			background-color: rgba(18, 18, 18, 0.95);
-			backdrop-filter: blur(10px);
+			background-color: rgba(18, 18, 18, 0.8);
+			backdrop-filter: blur(16px);
+			-webkit-backdrop-filter: blur(16px);
 			flex-direction: column;
 			justify-content: center;
 			align-items: center;

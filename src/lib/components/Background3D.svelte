@@ -5,10 +5,12 @@
 	let canvasEl: HTMLCanvasElement;
 
 	$effect(() => {
+		// --- ✨ СЦЕНА И КАМЕРА ---
 		const scene = new THREE.Scene();
 		const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-		camera.position.z = 1.5;
+		camera.position.z = 2;
 
+		// --- ✨ РЕНДЕРЕР ---
 		const renderer = new THREE.WebGLRenderer({
 			canvas: canvasEl,
 			antialias: true,
@@ -17,52 +19,78 @@
 		renderer.setSize(window.innerWidth, window.innerHeight);
 		renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 
-		const geometry = new THREE.IcosahedronGeometry(1, 1);
-		
-		const material = new THREE.MeshStandardMaterial({
-			color: new THREE.Color(getComputedStyle(document.documentElement).getPropertyValue('--accent-color')),
-			roughness: 0.5,
-			metalness: 0.7
-		});
+		// --- ✨ ТВОРЧЕСКАЯ ЧАСТЬ: СОЗДАЕМ ЧАСТИЦЫ ---
 
-		const wireframeMaterial = new THREE.MeshBasicMaterial({
-			color: new THREE.Color(getComputedStyle(document.documentElement).getPropertyValue('--text-color')),
-			wireframe: true,
+		// 1. Геометрия: Облако из 5000 точек
+		const particlesGeometry = new THREE.BufferGeometry();
+		const count = 5000;
+
+		const positions = new Float32Array(count * 3); // Каждая точка имеет 3 координаты (x, y, z)
+		const colors = new Float32Array(count * 3); // И 3 значения для цвета (r, g, b)
+
+		const accentColor = new THREE.Color(getComputedStyle(document.documentElement).getPropertyValue('--accent-color'));
+		const textColor = new THREE.Color(getComputedStyle(document.documentElement).getPropertyValue('--text-color'));
+
+		for (let i = 0; i < count * 3; i++) {
+			positions[i] = (Math.random() - 0.5) * 10; // Разбрасываем точки в кубе 10x10x10
+			
+            // Смешиваем два основных цвета для разнообразия
+			const mixedColor = Math.random() > 0.7 ? accentColor : textColor;
+			colors[i * 3 + 0] = mixedColor.r;
+			colors[i * 3 + 1] = mixedColor.g;
+			colors[i * 3 + 2] = mixedColor.b;
+		}
+
+		particlesGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+		particlesGeometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+
+		// 2. Материал: Маленькие, полупрозрачные точки
+		const particlesMaterial = new THREE.PointsMaterial({
+			size: 0.015,
+			sizeAttenuation: true, // Частицы меньше, когда дальше
 			transparent: true,
-			opacity: 0.1
+			depthWrite: false,
+			blending: THREE.AdditiveBlending, // Красивый эффект свечения при наложении
+			vertexColors: true // Используем цвета, которые задали выше
 		});
 
-		const mesh = new THREE.Mesh(geometry, material);
-		const wireframe = new THREE.Mesh(geometry, wireframeMaterial);
-		mesh.add(wireframe);
+		// 3. Создаем объект частиц
+		const particles = new THREE.Points(particlesGeometry, particlesMaterial);
+		scene.add(particles);
 
-		scene.add(mesh);
-
+		// --- ✨ ОСВЕЩЕНИЕ (упрощенное, т.к. PointsMaterial не реагирует на свет) ---
 		const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
 		scene.add(ambientLight);
-		const pointLight = new THREE.PointLight(0xffffff, 20);
-		pointLight.position.set(5, 5, 5);
-		scene.add(pointLight);
 
+		// --- ✨ ИНТЕРАКТИВНОСТЬ И АНИМАЦИЯ ---
 		let mouse = { x: 0, y: 0 };
 		const onMouseMove = (e: MouseEvent) => {
-			mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
-			mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
+			// Используем gsap для плавного обновления координат мыши
+			gsap.to(mouse, {
+				x: e.clientX,
+				y: e.clientY,
+				duration: 0.5,
+				ease: 'power2.out'
+			});
 		};
 		window.addEventListener('mousemove', onMouseMove);
 
 		const clock = new THREE.Clock();
-
-		// --- ✨ ИСПРАВЛЕНИЕ: Добавляем ID для requestAnimationFrame ---
 		let animationFrameId: number;
 
 		const tick = () => {
 			const elapsedTime = clock.getElapsedTime();
-			mesh.rotation.y = elapsedTime * 0.1 + mouse.x * 0.2;
-			mesh.rotation.x = -elapsedTime * 0.1 - mouse.y * 0.2;
+
+			// Анимация вращения всего облака
+			particles.rotation.y = elapsedTime * 0.05;
+			particles.rotation.x = elapsedTime * 0.02;
+
+			// Анимация реакции на курсор: двигаем камеру
+			camera.position.x += (mouse.x / window.innerWidth * 2 - camera.position.x) * 0.02;
+			camera.position.y += (-(mouse.y / window.innerHeight * 2) - camera.position.y) * 0.02;
+			camera.lookAt(scene.position);
 
 			renderer.render(scene, camera);
-			// --- ✨ ИСПРАВЛЕНИЕ: Сохраняем ID, чтобы остановить цикл при необходимости ---
 			animationFrameId = requestAnimationFrame(tick);
 		};
 		tick();
@@ -78,7 +106,6 @@
 		return () => {
 			window.removeEventListener('mousemove', onMouseMove);
 			window.removeEventListener('resize', onResize);
-			// --- ✨ ИСПРАВЛЕНИЕ: Останавливаем цикл анимации при уничтожении компонента ---
 			cancelAnimationFrame(animationFrameId);
 		};
 	});

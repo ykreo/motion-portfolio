@@ -1,0 +1,45 @@
+/* src/styles/global.css */
+@font-face {
+    font-family: 'Syne';
+    src: url('/fonts/Syne-VariableFont_wght.ttf') format('truetype');
+    font-weight: 400 800;
+    font-display: swap;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Plus Jakarta Sans';
+    src: url('/fonts/PlusJakartaSans-VariableFont_wght.ttf') format('truetype');
+    font-weight: 200 800;
+    font-display: swap;
+    font-style: normal;
+}
+
+:root {
+    --background-color: #121212; /* Глубокий черный */
+    --text-color: #F0EAD6; /* Бледно-желтый */
+    --accent-color: #FFD700; /* Яркий желтый для акцентов */
+    --surface-color: #1E1E1E; /* Цвет для карточек */
+    --border-color: rgba(240, 234, 214, 0.15);
+
+    --font-primary: 'Syne', sans-serif;
+    --font-secondary: 'Plus Jakarta Sans', sans-serif;
+}
+
+*, *::before, *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    background-color: var(--background-color);
+    color: var(--text-color);
+    font-family: var(--font-secondary);
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+}

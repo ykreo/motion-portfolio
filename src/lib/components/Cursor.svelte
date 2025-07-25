@@ -16,7 +16,7 @@
 
 		const pos = { x: window.innerWidth / 2, y: window.innerHeight / 2 };
 		const mouse = { x: pos.x, y: pos.y };
-		const speed = 0.1;
+		const speed = 0.9;
 
 		const xSet = gsap.quickSetter(followerEl, 'x', 'px');
 		const ySet = gsap.quickSetter(followerEl, 'y', 'px');

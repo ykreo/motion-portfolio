@@ -7,11 +7,14 @@
 	let isHovering = $state(false);
 
 	$effect(() => {
+		// --- ✨ ИСПРАВЛЕНИЕ: Переносим логику внутрь проверки ---
 		if (!$isCustomCursorEnabled) {
 			document.documentElement.style.cursor = '';
+			// Если курсор выключен, выходим и ничего не делаем
 			return;
 		}
 
+		// Если курсор включен, запускаем всю логику
 		document.documentElement.style.cursor = 'none';
 
 		const pos = { x: window.innerWidth / 2, y: window.innerHeight / 2 };
@@ -50,13 +53,13 @@
 			(el as HTMLElement).style.cursor = 'none';
 		});
 
+		// Функция очистки будет вызываться каждый раз, когда $isCustomCursorEnabled меняется с true на false
 		return () => {
 			window.removeEventListener('mousemove', onMouseMove);
 			gsap.ticker.remove(update);
 			interactiveElements.forEach((el) => {
 				el.removeEventListener('mouseenter', onMouseEnter);
 				el.removeEventListener('mouseleave', onMouseLeave);
-				// --- ✨ ВОТ ИСПРАВЛЕНИЕ: Возвращаем курсор для интерактивных элементов ---
 				(el as HTMLElement).style.cursor = '';
 			});
 			document.documentElement.style.cursor = '';

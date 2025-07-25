@@ -6,25 +6,27 @@
 		{ code: 'en', name: 'EN' },
 		{ code: 'ru', name: 'RU' }
 	];
-
 	function changeLocale(lang: string) {
 		locale.set(lang);
 	}
 </script>
 
-<div class="lang-switcher">
+<nav class="lang-switcher" aria-label="Выбор языка">
 	{#each languages as lang, i}
 		<button
 			class:active={lang.code === $locale}
 			onclick={() => changeLocale(lang.code)}
 			type="button"
+			aria-pressed={lang.code === $locale}
+			lang={lang.code}
 		>
 			{lang.name}
 		</button>
 		{#if i < languages.length - 1}
-			<span>/</span>
+			<span aria-hidden="true">/</span>
 		{/if}
-	{/each} </div>
+	{/each}
+</nav>
 
 <style>
 	.lang-switcher {

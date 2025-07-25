@@ -9,9 +9,7 @@
 	let activeSection = $state('');
 	let isMenuOpen = $state(false);
 
-	// --- НАША НОВАЯ ЛОГИКА ---
 	let isScrolled = $state(false);
-
 	$effect(() => {
 		const handleScroll = () => {
 			isScrolled = window.scrollY > 10;
@@ -19,12 +17,10 @@
 
 		window.addEventListener('scroll', handleScroll, { passive: true });
 
-		// Функция очистки, которая удалит обработчик, когда компонент будет уничтожен
 		return () => {
 			window.removeEventListener('scroll', handleScroll);
 		};
 	});
-	// --- КОНЕЦ НОВОЙ ЛОГИКИ ---
 
 	$effect(() => {
 		if (pathname !== '/') {
@@ -113,11 +109,11 @@
 				</li>
 			</ul>
 			<div class="controls">
-				<div class="social-links">
-					<a href={TELEGRAM_URL} target="_blank" rel="noopener noreferrer" aria-label="Telegram">
+				<div class="social-links" role="group" aria-label="Социальные сети">
+					<a href={TELEGRAM_URL} target="_blank" rel="noopener noreferrer" aria-label="Telegram" title="Telegram">
 						<Send size={20} />
 					</a>
-					<a href={LINKEDIN_URL} target="_blank" rel="noopener noreferrer" aria-label="LinkedIn">
+					<a href={LINKEDIN_URL} target="_blank" rel="noopener noreferrer" aria-label="LinkedIn" title="LinkedIn">
 						<Linkedin size={20} />
 					</a>
 				</div>
@@ -125,7 +121,13 @@
 			</div>
 		</nav>
 
-		<button class="burger-menu" onclick={() => (isMenuOpen = !isMenuOpen)} aria-label="Меню">
+		<button
+			class="burger-menu"
+			onclick={() => (isMenuOpen = !isMenuOpen)}
+			aria-label="Меню"
+			aria-expanded={isMenuOpen}
+			aria-controls="navigation-menu"
+		>
 			{#if isMenuOpen}
 				<X size={28} />
 			{:else}
@@ -159,18 +161,15 @@
 		border-radius: 50px;
 		border: 1px solid var(--border-color);
 		box-shadow: inset 0 1px 1px rgba(240, 234, 214, 0.1);
-		/* --- ✨ НОВЫЙ СТИЛЬ ДЛЯ ПЕРЕХОДА ТЕНИ ✨ --- */
 		transition: box-shadow 0.3s ease-out;
 	}
 
-    /* --- ✨ НОВЫЕ СТИЛИ ДЛЯ ТЕНИ ПРИ СКРОЛЛЕ ✨ --- */
-	header.scrolled .header-container {
+    header.scrolled .header-container {
 		box-shadow:
 			inset 0 1px 1px rgba(240, 234, 214, 0.1),
 			0 4px 15px rgba(0, 0, 0, 0.2);
 	}
 	
-	/* --- ✨ НОВЫЕ СТИЛИ ДЛЯ ВЫРАВНИВАНИЯ ЛОГОТИПА ✨ --- */
 	.logo-link {
 		display: flex;
 		align-items: center;

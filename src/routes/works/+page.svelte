@@ -7,11 +7,14 @@
 	let activeCategory: 'all' | 'video' | 'static' = $state('all');
 	let activeTags = $state<string[]>([]);
 
-	// --- ✨ ИСПРАВЛЕНИЕ: Используем $state и $effect для 100% корректной типизации ---
-	// 1. Создаем реактивное состояние для отфильтрованных работ.
+	// --- ✨ ИСПРАВЛЕНИЕ: Список всех тегов теперь просто константа ---
+	// Мы вычисляем его один раз, так как исходный массив работ не меняется.
+	const allTags = [...new Set(works.flatMap((work) => work.tags))];
+
+	// Создаем реактивное состояние для отфильтрованных работ.
 	let filteredWorks = $state<Work[]>(works);
 
-	// 2. Используем $effect, чтобы "реагировать" на изменения фильтров
+	// Используем $effect, чтобы "реагировать" на изменения фильтров
 	// и обновлять наш отфильтрованный массив.
 	$effect(() => {
 		filteredWorks = works.filter((work) => {
@@ -21,10 +24,6 @@
 			return categoryMatch && tagsMatch;
 		});
 	});
-	// --- КОНЕЦ ИСПРАВЛЕНИЯ ---
-
-	// Список всех тегов теперь просто константа
-	const allTags = [...new Set(works.flatMap((work) => work.tags))];
 
 	function selectCategory(category: 'all' | 'video' | 'static') {
 		activeCategory = category;

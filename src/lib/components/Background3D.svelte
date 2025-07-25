@@ -7,7 +7,7 @@
 	$effect(() => {
 		const scene = new THREE.Scene();
 		const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-		camera.position.z = 2.5;
+		camera.position.z = 1.5;
 
 		const renderer = new THREE.WebGLRenderer({
 			canvas: canvasEl,
@@ -52,13 +52,18 @@
 		window.addEventListener('mousemove', onMouseMove);
 
 		const clock = new THREE.Clock();
+
+		// --- ✨ ИСПРАВЛЕНИЕ: Добавляем ID для requestAnimationFrame ---
+		let animationFrameId: number;
+
 		const tick = () => {
 			const elapsedTime = clock.getElapsedTime();
 			mesh.rotation.y = elapsedTime * 0.1 + mouse.x * 0.2;
 			mesh.rotation.x = -elapsedTime * 0.1 - mouse.y * 0.2;
 
 			renderer.render(scene, camera);
-			requestAnimationFrame(tick);
+			// --- ✨ ИСПРАВЛЕНИЕ: Сохраняем ID, чтобы остановить цикл при необходимости ---
+			animationFrameId = requestAnimationFrame(tick);
 		};
 		tick();
 
@@ -69,11 +74,12 @@
 		};
 		window.addEventListener('resize', onResize);
 
-        // Функция очистки
+		// Функция очистки
 		return () => {
 			window.removeEventListener('mousemove', onMouseMove);
 			window.removeEventListener('resize', onResize);
-            // Здесь можно добавить логику для остановки requestAnimationFrame, если необходимо
+			// --- ✨ ИСПРАВЛЕНИЕ: Останавливаем цикл анимации при уничтожении компонента ---
+			cancelAnimationFrame(animationFrameId);
 		};
 	});
 </script>

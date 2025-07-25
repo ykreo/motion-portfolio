@@ -55,11 +55,12 @@
 		color: rgba(240, 234, 214, 0.7);
 	}
 
-	/* Стили для промо-блока "Работы" */
+	/* --- ✨ ИСПРАВЛЕНИЕ: Объединил дублирующиеся стили в один блок --- */
 	.works-promo-container h2 {
 		font-family: var(--font-primary);
 		font-size: clamp(2.5rem, 8vw, 5rem);
 		margin-bottom: 3rem;
+		view-transition-name: works-title;
 	}
 
 	.cta-button {
@@ -75,13 +76,5 @@
 	}
 	.cta-button:hover {
 		transform: scale(1.05);
-	}
-
-    .works-promo-container h2 {
-		font-family: var(--font-primary);
-		font-size: clamp(2.5rem, 8vw, 5rem);
-		margin-bottom: 3rem;
-		/* --- ✨ ВОТ НАША МЕТКА ✨ --- */
-		view-transition-name: works-title;
 	}
 </style>

@@ -1,10 +1,10 @@
 <script lang="ts">
 	import type { Work } from '$lib/works';
 
-	let { work } = $props< { work: Work }>();
+	let { work } = $props<{ work: Work }>();
 </script>
 
-<div class="work-card">
+<a href={`/works/${work.id}`} class="work-card">
 	<div class="image-container">
 		<img src={work.image} alt={work.title} />
 	</div>
@@ -16,16 +16,19 @@
 			{/each}
 		</div>
 	</div>
-</div>
+</a>
 
 <style>
+	/* --- ✨ ИЗМЕНЕНИЕ: Убираем cursor: pointer, так как ссылка уже имеет его по умолчанию --- */
 	.work-card {
 		background-color: var(--surface-color);
 		border-radius: 16px;
 		border: 1px solid var(--border-color);
 		overflow: hidden;
 		transition: all 0.3s ease;
-		cursor: pointer;
+		display: block; /* Чтобы ссылка занимала всю ширину */
+		text-decoration: none; /* Убираем подчеркивание у ссылки */
+		color: inherit; /* Наследуем цвет текста */
 	}
 
 	.work-card:hover {
@@ -36,14 +39,14 @@
 
 	.image-container {
 		width: 100%;
-		aspect-ratio: 4 / 3; /* Сохраняем пропорции изображения */
+		aspect-ratio: 4 / 3;
 		background-color: #2a2a2a;
 	}
 
 	img {
 		width: 100%;
 		height: 100%;
-		object-fit: cover; /* Изображение будет заполнять контейнер, сохраняя пропорции */
+		object-fit: cover;
 		display: block;
 	}
 

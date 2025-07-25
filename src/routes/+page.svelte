@@ -4,7 +4,7 @@
 </script>
 
 <svelte:head>
-	<title>YKREO — Креативный разработчик</title>
+	<title>YKREO — {$t('hero.title')}</title>
 	<meta name="description" content="Портфолио, где дизайн встречается с кодом." />
 </svelte:head>
 
@@ -22,11 +22,6 @@
 		<h2>{$t('works_promo.title')}</h2>
 		<a href="/works" class="cta-button" role="button">{$t('works_promo.cta')}</a>
 	</section>
-
-	<section id="contact" class="contact-container">
-		<h2>Свяжитесь со мной</h2>
-		<p>Готов обсудить ваш следующий проект.</p>
-		</section>
 </div>
 
 <style>

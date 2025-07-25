@@ -3,12 +3,12 @@
 </script>
 
 <svelte:head>
-	<title>Резюме — YKREO</title>
+	<title>{$t('nav.resume')} — YKREO</title>
 </svelte:head>
 
 <div class="resume-container">
 	<h1>{$t('nav.resume')}</h1>
-	<p>Здесь будет ваше резюме, красиво оформленное и структурированное.</p>
+	<p>{$t('resume.placeholder')}</p>
 </div>
 
 <style>

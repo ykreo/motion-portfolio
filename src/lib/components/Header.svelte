@@ -1,31 +1,35 @@
 <script lang="ts">
-	import Logo from '$components/Logo.svelte';
-	// ✅ ИСПРАВЛЕНО: Правильный путь к компоненту
-	import LanguageSwitcher from '$components/LanguageSwitcher.svelte';
+	import Logo from '$lib/components/Logo.svelte';
+	import LanguageSwitcher from '$lib/components/LanguageSwitcher.svelte';
 	import { page } from '$app/stores';
 	import { t } from 'svelte-i18n';
 	import { Linkedin, Send } from 'lucide-svelte';
 
+	// Реактивно отслеживаем путь и хеш для точного определения активной секции
 	const pathname = $derived($page.url.pathname);
+	const hash = $derived($page.url.hash);
 
-	// ✅ ДОБАВЛЕНО: Ваши реальные ссылки
+	// Ваши реальные ссылки
 	const TELEGRAM_URL = 'https://t.me/ykreo';
 	const LINKEDIN_URL = 'https://www.linkedin.com/in/converticube/';
+
+	// Функция для плавной прокрутки к секции
+	function scrollTo(selector: string) {
+		const element = document.querySelector(selector);
+		if (element) {
+			element.scrollIntoView({ behavior: 'smooth' });
+		}
+	}
 </script>
 
 <header>
 	<nav>
-		<a href="/" class="logo-link" aria-label="На главную">
+		<a href="/" class="logo-link" aria-label="На главную" onclick={(e) => { e.preventDefault(); scrollTo('#home'); }}>
 			<Logo />
 		</a>
 		<ul class="nav-links">
-			<li><a href="/#home" class:active={pathname === '/'}>{$t('nav.home')}</a></li>
+			<li><a href="/#home" class:active={pathname === '/' && (hash === '#home' || hash === '')}>{$t('nav.home')}</a></li>
 			<li><a href="/works" class:active={pathname.startsWith('/works')}>{$t('nav.works')}</a></li>
-			<li>
-				<a href="/#contact" onclick={() => document.getElementById('contact')?.scrollIntoView()}
-					>{$t('nav.contact')}</a
-				>
-			</li>
 			<li><a href="/resume" class:active={pathname.startsWith('/resume')}>{$t('nav.resume')}</a></li>
 		</ul>
 		<div class="controls">

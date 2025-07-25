@@ -13,5 +13,22 @@
 	"works_promo": {
 		"title": "My Works",
 		"cta": "View all"
+	},
+	"contact": {
+		"title": "Contact Me",
+		"subtitle": "Ready to discuss your next project."
+	},
+	"resume": {
+		"placeholder": "Your beautifully designed and structured resume will be here."
+	},
+	"works": {
+		"description": "Here will be a gallery of your works with categories and tags.",
+		"categories": {
+			"title": "Categories",
+			"all": "All",
+			"video": "Video",
+			"static": "Static"
+		},
+		"placeholder": "The gallery is under construction."
 	}
 }

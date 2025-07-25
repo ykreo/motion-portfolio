@@ -4,33 +4,91 @@
 	import { page } from '$app/stores';
 	import { t } from 'svelte-i18n';
 	import { Linkedin, Send } from 'lucide-svelte';
+	import { onMount } from 'svelte';
 
-	// Реактивно отслеживаем путь и хеш для точного определения активной секции
 	const pathname = $derived($page.url.pathname);
-	const hash = $derived($page.url.hash);
+	let activeSection = $state('');
 
-	// Ваши реальные ссылки
+	onMount(() => {
+		if (pathname !== '/') {
+			activeSection = '';
+			return;
+		}
+
+		const sections = document.querySelectorAll('section[id]');
+		if (!sections.length) return;
+
+		const observer = new IntersectionObserver(
+			(entries) => {
+				entries.forEach((entry) => {
+					if (entry.isIntersecting) {
+						activeSection = entry.target.id;
+					}
+				});
+			},
+			{
+				rootMargin: '-50% 0px -50% 0px',
+				threshold: 0
+			}
+		);
+
+		sections.forEach((section) => {
+			observer.observe(section);
+		});
+
+		return () => {
+			sections.forEach((section) => {
+				observer.unobserve(section);
+			});
+		};
+	});
+
 	const TELEGRAM_URL = 'https://t.me/ykreo';
 	const LINKEDIN_URL = 'https://www.linkedin.com/in/converticube/';
 
-	// Функция для плавной прокрутки к секции
 	function scrollTo(selector: string) {
 		const element = document.querySelector(selector);
 		if (element) {
 			element.scrollIntoView({ behavior: 'smooth' });
 		}
 	}
+
+	function handleHomeNav(event: MouseEvent, selector: string) {
+		if (pathname === '/') {
+			event.preventDefault();
+			scrollTo(selector);
+		}
+	}
 </script>
 
 <header>
 	<nav>
-		<a href="/" class="logo-link" aria-label="На главную" onclick={(e) => { e.preventDefault(); scrollTo('#home'); }}>
+		<a
+			href="/"
+			class="logo-link"
+			aria-label="На главную"
+			onclick={(e) => handleHomeNav(e, '#home')}
+		>
 			<Logo />
 		</a>
 		<ul class="nav-links">
-			<li><a href="/#home" class:active={pathname === '/' && (hash === '#home' || hash === '')}>{$t('nav.home')}</a></li>
-			<li><a href="/works" class:active={pathname.startsWith('/works')}>{$t('nav.works')}</a></li>
-			<li><a href="/resume" class:active={pathname.startsWith('/resume')}>{$t('nav.resume')}</a></li>
+			<li>
+				<a
+					href="/#home"
+					class:active={pathname === '/' && (activeSection === 'home' || activeSection === '')}
+					onclick={(e) => handleHomeNav(e, '#home')}>{$t('nav.home')}</a
+				>
+			</li>
+			<li>
+				<a
+					href="/works"
+					class:active={pathname.startsWith('/works') ||
+						(pathname === '/' && activeSection === 'works-promo')}>{$t('nav.works')}</a
+				>
+			</li>
+			<li>
+				<a href="/resume" class:active={pathname.startsWith('/resume')}>{$t('nav.resume')}</a>
+			</li>
 		</ul>
 		<div class="controls">
 			<div class="social-links">

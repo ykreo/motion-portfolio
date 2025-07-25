@@ -5,10 +5,11 @@
 	import Transition from '$components/Transition.svelte';
 	import Background3D from '$components/Background3D.svelte';
 	import { locale, waitLocale } from 'svelte-i18n';
-	import '$lib/i18n'; // Импортируем для инициализации
+	import '$lib/i18n';
 
-	// Этот Svelte 5 snippet гарантирует, что мы дождемся загрузки языка
-	// перед тем как рендерить страницу, чтобы избежать "мелькания" текста.
+	// ИЗМЕНЕНИЕ ЗДЕСЬ: Объявляем, что компонент принимает 'children'
+	let { children } = $props();
+
 	$effect(() => {
 		async function init() {
 			await waitLocale();
@@ -24,7 +25,7 @@
 	<Header />
 
 	<main>
-		<slot />
+		{@render children()}
 	</main>
 {/if}
 

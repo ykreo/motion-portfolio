@@ -18,7 +18,7 @@
 		</p>
 	</section>
 
-	<section class="works-promo-container">
+	<section id="works-promo" class="works-promo-container">
 		<h2>{$t('works_promo.title')}</h2>
 		<a href="/works" class="cta-button" role="button">{$t('works_promo.cta')}</a>
 	</section>
@@ -75,16 +75,5 @@
 	}
 	.cta-button:hover {
 		transform: scale(1.05);
-	}
-
-	/* Стили для секции "Контакт" */
-	.contact-container h2 {
-		font-family: var(--font-primary);
-		font-size: clamp(2.5rem, 8vw, 5rem);
-		margin-bottom: 2rem;
-	}
-	.contact-container p {
-		font-size: 1.2rem;
-		color: rgba(240, 234, 214, 0.7);
 	}
 </style>

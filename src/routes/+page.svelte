@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { animateTitle } from '$lib/utils/actions';
+	import { t } from 'svelte-i18n';
 </script>
 
 <svelte:head>
@@ -7,27 +8,42 @@
 	<meta name="description" content="Портфолио, где дизайн встречается с кодом." />
 </svelte:head>
 
-<div class="hero-container">
-	<h1 class="title" use:animateTitle>
-		Creative Developer
-	</h1>
-	<p class="subtitle">
-		Создаю цифровые миры, которые живут и дышат, объединяя эстетику и функциональность.
-	</p>
-	<a href="/works" class="cta-button" role="button">Изучить проекты</a>
+<div class="page-container">
+	<section id="home" class="hero-container">
+		<h1 class="title" use:animateTitle>
+			{$t('hero.title')}
+		</h1>
+		<p class="subtitle">
+			{$t('hero.subtitle')}
+		</p>
+	</section>
+
+	<section class="works-promo-container">
+		<h2>{$t('works_promo.title')}</h2>
+		<a href="/works" class="cta-button" role="button">{$t('works_promo.cta')}</a>
+	</section>
+
+	<section id="contact" class="contact-container">
+		<h2>Свяжитесь со мной</h2>
+		<p>Готов обсудить ваш следующий проект.</p>
+		</section>
 </div>
 
 <style>
-	.hero-container {
+	.page-container > section {
 		min-height: 100vh;
 		display: flex;
 		flex-direction: column;
 		justify-content: center;
 		align-items: center;
 		text-align: center;
-		padding: 0 2rem;
+		padding: 5rem 2rem;
 	}
 
+	/* Стили для Hero секции */
+	.hero-container {
+		justify-content: center;
+	}
 	.title {
 		font-family: var(--font-primary);
 		font-size: clamp(3rem, 10vw, 6.5rem);
@@ -35,15 +51,20 @@
 		line-height: 1;
 		color: var(--text-color);
 		margin-bottom: 2rem;
-        /* Важно для работы SplitType */
-        clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%);
+		/* Важно для работы SplitType */
+		clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%);
 	}
-
 	.subtitle {
 		font-size: clamp(1.1rem, 3vw, 1.5rem);
 		max-width: 600px;
-		margin-bottom: 3rem;
 		color: rgba(240, 234, 214, 0.7);
+	}
+
+	/* Стили для промо-блока "Работы" */
+	.works-promo-container h2 {
+		font-family: var(--font-primary);
+		font-size: clamp(2.5rem, 8vw, 5rem);
+		margin-bottom: 3rem;
 	}
 
 	.cta-button {
@@ -57,8 +78,18 @@
 		text-decoration: none;
 		transition: transform 0.3s ease;
 	}
-
 	.cta-button:hover {
 		transform: scale(1.05);
+	}
+
+	/* Стили для секции "Контакт" */
+	.contact-container h2 {
+		font-family: var(--font-primary);
+		font-size: clamp(2.5rem, 8vw, 5rem);
+		margin-bottom: 2rem;
+	}
+	.contact-container p {
+		font-size: 1.2rem;
+		color: rgba(240, 234, 214, 0.7);
 	}
 </style>

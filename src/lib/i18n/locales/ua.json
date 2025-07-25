@@ -1,0 +1,17 @@
+{
+	"nav": {
+		"home": "Головна",
+		"works": "Роботи",
+		"contact": "Контакт",
+		"resume": "Резюме"
+	},
+	"hero": {
+		"title": "Creative Developer",
+		"subtitle": "Ярослав Самойленко — Senior Motion Designer & Team Leader",
+		"cta": "Вивчити проєкти"
+	},
+	"works_promo": {
+		"title": "Мої Роботи",
+		"cta": "Дивитись усі"
+	}
+}

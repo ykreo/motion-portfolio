@@ -36,6 +36,7 @@
 		"gsap": "^3.13.0",
 		"lucide-svelte": "^0.525.0",
 		"split-type": "^0.3.4",
+		"svelte-i18n": "^4.0.1",
 		"three": "^0.178.0"
 	}
 }

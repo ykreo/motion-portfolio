@@ -4,16 +4,29 @@
 	import Cursor from '$components/Cursor.svelte';
 	import Transition from '$components/Transition.svelte';
 	import Background3D from '$components/Background3D.svelte';
+	import { locale, waitLocale } from 'svelte-i18n';
+	import '$lib/i18n'; // Импортируем для инициализации
+
+	// Этот Svelte 5 snippet гарантирует, что мы дождемся загрузки языка
+	// перед тем как рендерить страницу, чтобы избежать "мелькания" текста.
+	$effect(() => {
+		async function init() {
+			await waitLocale();
+		}
+		init();
+	});
 </script>
 
-<Cursor />
-<Transition />
-<Background3D />
-<Header />
+{#if $locale}
+	<Cursor />
+	<Transition />
+	<Background3D />
+	<Header />
 
-<main>
-	<slot />
-</main>
+	<main>
+		<slot />
+	</main>
+{/if}
 
 <style>
 	main {

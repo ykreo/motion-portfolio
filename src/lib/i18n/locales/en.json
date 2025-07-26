@@ -10,6 +10,20 @@
 		"subtitle": "Senior Motion Designer & Team Leader",
 		"cta": "Explore projects"
 	},
+	"features": {
+		"experience": {
+			"title": "Experience since 2019",
+			"description": "Over 5 years in the industry, honed skills, and a deep understanding of trends."
+		},
+		"quantity": {
+			"title": "5000+ creatives",
+			"description": "A huge portfolio demonstrating flexibility and the ability to solve any task."
+		},
+		"ai": {
+			"title": "AI Tools",
+			"description": "Active use of neural networks to speed up work and create unique visual effects."
+		}
+	},
 	"works_promo": {
 		"title": "My Works",
 		"cta": "View all"

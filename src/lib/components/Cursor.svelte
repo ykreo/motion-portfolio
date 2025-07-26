@@ -2,8 +2,10 @@
 	import { gsap } from 'gsap';
 	import { isCustomCursorEnabled } from '$lib/stores';
 
-	let cursorEl: HTMLDivElement;
-	let followerEl: HTMLDivElement;
+	// svelte-ignore non_reactive_update
+		let cursorEl: HTMLDivElement;
+	// svelte-ignore non_reactive_update
+		let followerEl: HTMLDivElement;
 	let isHovering = $state(false);
 
 	$effect(() => {

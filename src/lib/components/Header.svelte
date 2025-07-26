@@ -3,7 +3,15 @@
 	import LanguageSwitcher from '$lib/components/LanguageSwitcher.svelte';
 	import { page } from '$app/stores';
 	import { t } from 'svelte-i18n';
-	import { Linkedin, Send, Menu, X } from 'lucide-svelte';
+	import { Menu, X } from 'lucide-svelte';
+	import { quintOut } from 'svelte/easing';
+	import { fade, fly } from 'svelte/transition';
+
+	const navLinks = [
+		{ href: '/#home', key: 'nav.home', sectionId: 'home' },
+		{ href: '/works', key: 'nav.works', sectionId: 'works-promo' },
+		{ href: '/resume', key: 'nav.resume', sectionId: 'resume' }
+	];
 
 	const pathname = $derived($page.url.pathname);
 	let activeSection = $state('');
@@ -14,12 +22,8 @@
 		const handleScroll = () => {
 			isScrolled = window.scrollY > 10;
 		};
-
 		window.addEventListener('scroll', handleScroll, { passive: true });
-
-		return () => {
-			window.removeEventListener('scroll', handleScroll);
-		};
+		return () => window.removeEventListener('scroll', handleScroll);
 	});
 
 	$effect(() => {
@@ -27,10 +31,8 @@
 			activeSection = '';
 			return;
 		}
-
 		const sections = document.querySelectorAll('section[id]');
 		if (!sections.length) return;
-
 		const observer = new IntersectionObserver(
 			(entries) => {
 				entries.forEach((entry) => {
@@ -39,20 +41,11 @@
 					}
 				});
 			},
-			{
-				rootMargin: '-50% 0px -50% 0px',
-				threshold: 0
-			}
+			{ rootMargin: '-50% 0px -50% 0px', threshold: 0 }
 		);
-
 		sections.forEach((section) => observer.observe(section));
-
-		return () => {
-			sections.forEach((section) => observer.unobserve(section));
-		};
+		return () => sections.forEach((section) => observer.unobserve(section));
 	});
-	const TELEGRAM_URL = 'https://t.me/ykreo';
-	const LINKEDIN_URL = 'https://www.linkedin.com/in/converticube/';
 
 	function scrollTo(selector: string) {
 		const element = document.querySelector(selector);
@@ -61,64 +54,43 @@
 		}
 	}
 
-	function handleHomeNav(event: MouseEvent, selector: string) {
-		if (pathname === '/') {
+	function handleNavClick(event: MouseEvent, link: (typeof navLinks)[0]) {
+		if (link.href.startsWith('/#') && pathname === '/') {
 			event.preventDefault();
-			scrollTo(selector);
+			scrollTo(link.href.substring(1));
 		}
 		isMenuOpen = false;
 	}
 
-	function handleRegularNav() {
-		isMenuOpen = false;
+	function isLinkActive(link: { href: string; sectionId: string }): boolean {
+		const baseHref = link.href.split('#')[0];
+		if (pathname === '/') {
+			return activeSection === link.sectionId || (link.sectionId === 'home' && activeSection === '');
+		}
+		if (baseHref === '/') return false;
+		return pathname.startsWith(baseHref);
 	}
 </script>
 
-<header class:scrolled={isScrolled}>
+<header class:scrolled={isScrolled} class:open={isMenuOpen}>
 	<div class="header-container">
-		<a
-			href="/"
-			class="logo-link"
-			aria-label="На главную"
-			onclick={(e) => handleHomeNav(e, '#home')}
-		>
+		<a href="/" class="logo-link" aria-label="На главную" onclick={() => (isMenuOpen = false)}>
 			<Logo />
 		</a>
 
-		<nav class:open={isMenuOpen}>
+		<nav class="desktop-nav">
 			<ul class="nav-links">
-				<li>
-					<a
-						href="/#home"
-						class:active={pathname === '/' && (activeSection === 'home' || activeSection === '')}
-						onclick={(e) => handleHomeNav(e, '#home')}>{$t('nav.home')}</a
-					>
-				</li>
-				<li>
-					<a
-						href="/works"
-						class:active={pathname.startsWith('/works') ||
-							(pathname === '/' && activeSection === 'works-promo')}
-						onclick={handleRegularNav}>{$t('nav.works')}</a
-					>
-				</li>
-				<li>
-					<a href="/resume" class:active={pathname.startsWith('/resume')} onclick={handleRegularNav}
-						>{$t('nav.resume')}</a
-					>
-				</li>
+				{#each navLinks as link}
+					<li>
+						<a
+							href={link.href}
+							class:active={isLinkActive(link)}
+							onclick={(e) => handleNavClick(e, link)}>{$t(link.key)}</a
+						>
+					</li>
+				{/each}
 			</ul>
-			<div class="controls">
-				<div class="social-links" role="group" aria-label="Социальные сети">
-					<a href={TELEGRAM_URL} target="_blank" rel="noopener noreferrer" aria-label="Telegram" title="Telegram">
-						<Send size={20} />
-					</a>
-					<a href={LINKEDIN_URL} target="_blank" rel="noopener noreferrer" aria-label="LinkedIn" title="LinkedIn">
-						<Linkedin size={20} />
-					</a>
-				</div>
-				<LanguageSwitcher />
-			</div>
+			<LanguageSwitcher />
 		</nav>
 
 		<button
@@ -126,15 +98,44 @@
 			onclick={() => (isMenuOpen = !isMenuOpen)}
 			aria-label="Меню"
 			aria-expanded={isMenuOpen}
-			aria-controls="navigation-menu"
 		>
-			{#if isMenuOpen}
-				<X size={28} />
-			{:else}
-				<Menu size={28} />
-			{/if}
+			{#key isMenuOpen}
+				<div in:fade={{ duration: 150 }}>
+					{#if isMenuOpen}
+						<X size={28} />
+					{:else}
+						<Menu size={28} />
+					{/if}
+				</div>
+			{/key}
 		</button>
 	</div>
+
+	{#if isMenuOpen}
+		<nav class="mobile-nav" transition:fade={{ duration: 200 }}>
+			<ul class="mobile-nav-links">
+				{#each navLinks as link, i}
+					<li
+						in:fly={{ y: -15, duration: 300, delay: 100 + i * 50, easing: quintOut }}
+						out:fade={{ duration: 150 }}
+					>
+						<a
+							href={link.href}
+							class:active={isLinkActive(link)}
+							onclick={(e) => handleNavClick(e, link)}>{$t(link.key)}</a
+						>
+					</li>
+				{/each}
+			</ul>
+			<div
+				class="mobile-lang-switcher"
+				in:fly={{ y: -15, duration: 300, delay: 100 + navLinks.length * 50, easing: quintOut }}
+				out:fade={{ duration: 150 }}
+			>
+				<LanguageSwitcher />
+			</div>
+		</nav>
+	{/if}
 </header>
 
 <style>
@@ -142,15 +143,16 @@
 		position: sticky;
 		top: 1.5rem;
 		left: 0;
+		right: 0;
 		width: 100%;
 		padding: 0 2rem;
 		z-index: 100;
 		transition: top 0.3s ease;
+		max-width: 1400px;
+		margin: 0 auto;
 	}
 
 	.header-container {
-		max-width: 1400px;
-		margin: 0 auto;
 		display: flex;
 		justify-content: space-between;
 		align-items: center;
@@ -161,30 +163,36 @@
 		border-radius: 50px;
 		border: 1px solid var(--border-color);
 		box-shadow: inset 0 1px 1px rgba(240, 234, 214, 0.1);
-		transition: box-shadow 0.3s ease-out;
+		transition:
+			box-shadow 0.3s ease-out,
+			border-radius 0.4s ease;
+		position: relative;
+		z-index: 102;
 	}
 
-    header.scrolled .header-container {
+	header.scrolled .header-container {
 		box-shadow:
 			inset 0 1px 1px rgba(240, 234, 214, 0.1),
 			0 4px 15px rgba(0, 0, 0, 0.2);
 	}
-	
+
 	.logo-link {
 		display: flex;
 		align-items: center;
 	}
 
-	nav {
+	.desktop-nav {
 		display: flex;
 		align-items: center;
 		gap: 2.5rem;
 	}
+
 	.nav-links {
 		display: flex;
 		gap: 2.5rem;
 		list-style: none;
 	}
+
 	.nav-links a {
 		font-family: var(--font-primary);
 		font-weight: 600;
@@ -192,7 +200,7 @@
 		text-decoration: none;
 		color: var(--text-color);
 		position: relative;
-		padding: 0.5rem 0;
+		padding: 0.5rem 0.25rem;
 		opacity: 0.7;
 		transition: opacity 0.3s ease;
 	}
@@ -202,37 +210,18 @@
 	.nav-links a.active {
 		opacity: 1;
 	}
+
 	.nav-links a.active::after {
 		content: '';
 		position: absolute;
-		bottom: 0;
-		left: 50%;
-		transform: translateX(-50%);
-		width: 5px;
-		height: 5px;
+		bottom: -2px;
+		left: 0;
+		right: 0;
+		height: 2px;
 		background-color: var(--accent-color);
-		border-radius: 50%;
+		border-radius: 2px;
 	}
-	.controls {
-		display: flex;
-		align-items: center;
-		gap: 2rem;
-	}
-	.social-links {
-		display: flex;
-		gap: 1.5rem;
-	}
-	.social-links a {
-		color: var(--text-color);
-		opacity: 0.7;
-		transition:
-			opacity 0.3s ease,
-			transform 0.3s ease;
-	}
-	.social-links a:hover {
-		opacity: 1;
-		transform: scale(1.1);
-	}
+
 	.burger-menu {
 		display: none;
 		background: none;
@@ -240,9 +229,15 @@
 		color: var(--text-color);
 		cursor: pointer;
 		z-index: 101;
+		padding: 0;
+		width: 28px;
+		height: 28px;
 	}
 
-	/* --- Адаптивность --- */
+	.mobile-nav {
+		display: none;
+	}
+
 	@media (max-width: 1024px) {
 		.header-container {
 			padding: 0.75rem 2rem;
@@ -257,45 +252,73 @@
 		.header-container {
 			padding: 0.5rem 1.5rem;
 		}
+		.desktop-nav {
+			display: none;
+		}
 		.burger-menu {
 			display: block;
 		}
-		nav {
-			position: fixed;
-			top: 0;
-			right: 0;
-			width: 100%;
-			height: 100%;
-			background-color: rgba(18, 18, 18, 0.8);
+
+		header.open .header-container {
+			border-radius: 24px 24px 0 0;
+		}
+
+		.mobile-nav {
+			display: block;
+			position: absolute;
+			top: calc(100% - 25px);
+			/* ✨ ИСПРАВЛЕНИЕ: Устанавливаем ширину и отступы как у родителя */
+			left: 1.5rem;
+			right: 1.5rem;
+			padding: 40px 2.5rem 2.5rem;
+			background-color: rgba(30, 30, 30, 0.85);
 			backdrop-filter: blur(16px);
 			-webkit-backdrop-filter: blur(16px);
+			border: 1px solid var(--border-color);
+			border-top: none;
+			border-radius: 0 0 24px 24px;
+			z-index: 101;
+			box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+		}
+
+		.mobile-nav-links {
+			list-style: none;
+			padding: 0;
+			margin: 0;
+			display: flex;
 			flex-direction: column;
-			justify-content: center;
 			align-items: center;
-			gap: 4rem;
-			transform: translateX(100%);
-			transition: transform 0.3s ease-in-out;
+			gap: 1.5rem;
 		}
-		nav.open {
-			transform: translateX(0);
-		}
-		.nav-links {
-			flex-direction: column;
-			text-align: center;
-			gap: 2rem;
-		}
-		.nav-links a {
+		.mobile-nav-links a {
+			font-family: var(--font-primary);
+			font-weight: 600;
 			font-size: 1.5rem;
+			text-decoration: none;
+			color: var(--text-color);
+			opacity: 0.7;
+			transition: opacity 0.3s ease;
+			position: relative;
+			padding: 0.5rem 0.25rem;
 		}
-		.controls {
-			flex-direction: column;
-			gap: 3rem;
+		.mobile-nav-links a:hover,
+		.mobile-nav-links a.active {
+			opacity: 1;
 		}
-		.social-links {
-			gap: 2.5rem;
+		.mobile-nav-links a.active::after {
+			content: '';
+			position: absolute;
+			bottom: -4px;
+			left: 5%;
+			right: 5%;
+			height: 3px;
+			background-color: var(--accent-color);
+			border-radius: 3px;
 		}
-		.social-links a {
-			transform: scale(1.2);
+		.mobile-lang-switcher {
+			margin-top: 2.5rem;
+			display: flex;
+			justify-content: center;
 		}
 	}
 </style>

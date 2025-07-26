@@ -1,16 +1,15 @@
 <script lang="ts">
 	import * as THREE from 'three';
-	import { gsap } from 'gsap';
 
 	let canvasEl: HTMLCanvasElement;
 
 	$effect(() => {
-		// --- ✨ СЦЕНА И КАМЕРА ---
+		// --- СЦЕНА И КАМЕРА ---
 		const scene = new THREE.Scene();
 		const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-		camera.position.z = 2;
+		camera.position.z = 50;
 
-		// --- ✨ РЕНДЕРЕР ---
+		// --- РЕНДЕРЕР ---
 		const renderer = new THREE.WebGLRenderer({
 			canvas: canvasEl,
 			antialias: true,
@@ -19,76 +18,95 @@
 		renderer.setSize(window.innerWidth, window.innerHeight);
 		renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 
-		// --- ✨ ТВОРЧЕСКАЯ ЧАСТЬ: СОЗДАЕМ ЧАСТИЦЫ ---
+		// --- ТВОРЧЕСКАЯ ЧАСТЬ: СОЗДАЕМ PLEXUS-ЭФФЕКТ ---
 
-		// 1. Геометрия: Облако из 5000 точек
-		const particlesGeometry = new THREE.BufferGeometry();
-		const count = 5000;
+		const accentColor = getComputedStyle(document.documentElement).getPropertyValue('--accent-color');
+		const textColor = getComputedStyle(document.documentElement).getPropertyValue('--text-color');
 
-		const positions = new Float32Array(count * 3); // Каждая точка имеет 3 координаты (x, y, z)
-		const colors = new Float32Array(count * 3); // И 3 значения для цвета (r, g, b)
+		const points: THREE.Vector3[] = [];
+		const velocities: THREE.Vector3[] = [];
+		const numPoints = 150; // Количество точек
 
-		const accentColor = new THREE.Color(getComputedStyle(document.documentElement).getPropertyValue('--accent-color'));
-		const textColor = new THREE.Color(getComputedStyle(document.documentElement).getPropertyValue('--text-color'));
-
-		for (let i = 0; i < count * 3; i++) {
-			positions[i] = (Math.random() - 0.5) * 10; // Разбрасываем точки в кубе 10x10x10
-			
-            // Смешиваем два основных цвета для разнообразия
-			const mixedColor = Math.random() > 0.7 ? accentColor : textColor;
-			colors[i * 3 + 0] = mixedColor.r;
-			colors[i * 3 + 1] = mixedColor.g;
-			colors[i * 3 + 2] = mixedColor.b;
+		// 1. Создаем точки со случайными позициями и скоростями
+		for (let i = 0; i < numPoints; i++) {
+			const x = Math.random() * 100 - 50;
+			const y = Math.random() * 100 - 50;
+			const z = Math.random() * 100 - 50;
+			points.push(new THREE.Vector3(x, y, z));
+			velocities.push(new THREE.Vector3(
+				(Math.random() - 0.5) * 0.1,
+				(Math.random() - 0.5) * 0.1,
+				(Math.random() - 0.5) * 0.1
+			));
 		}
 
-		particlesGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-		particlesGeometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
-
-		// 2. Материал: Маленькие, полупрозрачные точки
-		const particlesMaterial = new THREE.PointsMaterial({
-			size: 0.015,
-			sizeAttenuation: true, // Частицы меньше, когда дальше
-			transparent: true,
-			depthWrite: false,
-			blending: THREE.AdditiveBlending, // Красивый эффект свечения при наложении
-			vertexColors: true // Используем цвета, которые задали выше
+		// 2. Геометрия для точек
+		const pointsGeometry = new THREE.BufferGeometry().setFromPoints(points);
+		const pointsMaterial = new THREE.PointsMaterial({
+			color: textColor,
+			size: 1.5,
+			sizeAttenuation: false // Размер точек не меняется с расстоянием
 		});
-
-		// 3. Создаем объект частиц
-		const particles = new THREE.Points(particlesGeometry, particlesMaterial);
+		const particles = new THREE.Points(pointsGeometry, pointsMaterial);
 		scene.add(particles);
 
-		// --- ✨ ОСВЕЩЕНИЕ (упрощенное, т.к. PointsMaterial не реагирует на свет) ---
-		const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
-		scene.add(ambientLight);
+		// 3. Геометрия для линий
+		const linesGeometry = new THREE.BufferGeometry();
+		const linesMaterial = new THREE.LineBasicMaterial({
+			color: accentColor,
+			transparent: true,
+			opacity: 0.2,
+			depthWrite: false,
+			blending: THREE.AdditiveBlending
+		});
+		const lines = new THREE.LineSegments(linesGeometry, linesMaterial);
+		scene.add(lines);
 
-		// --- ✨ ИНТЕРАКТИВНОСТЬ И АНИМАЦИЯ ---
-		let mouse = { x: 0, y: 0 };
-		const onMouseMove = (e: MouseEvent) => {
-			// Используем gsap для плавного обновления координат мыши
-			gsap.to(mouse, {
-				x: e.clientX,
-				y: e.clientY,
-				duration: 0.5,
-				ease: 'power2.out'
-			});
+		// --- ИНТЕРАКТИВНОСТЬ И АНИМАЦИЯ ---
+		const mouse = new THREE.Vector2();
+		const onMouseMove = (event: MouseEvent) => {
+			mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+			mouse.y = -(event.clientY / window.innerHeight) * 2 - 1;
 		};
 		window.addEventListener('mousemove', onMouseMove);
-
-		const clock = new THREE.Clock();
+		
 		let animationFrameId: number;
+		const maxDistance = 10; // Максимальное расстояние для соединения точек
 
 		const tick = () => {
-			const elapsedTime = clock.getElapsedTime();
+			const positions = pointsGeometry.attributes.position.array as Float32Array;
+			const linePositions = [];
 
-			// Анимация вращения всего облака
-			particles.rotation.y = elapsedTime * 0.05;
-			particles.rotation.x = elapsedTime * 0.02;
+			for (let i = 0; i < numPoints; i++) {
+				const p = points[i];
+				p.add(velocities[i]);
 
-			// Анимация реакции на курсор: двигаем камеру
-			camera.position.x += (mouse.x / window.innerWidth * 2 - camera.position.x) * 0.02;
-			camera.position.y += (-(mouse.y / window.innerHeight * 2) - camera.position.y) * 0.02;
-			camera.lookAt(scene.position);
+				// Отталкивание от границ
+				if (p.x < -50 || p.x > 50) velocities[i].x *= -1;
+				if (p.y < -50 || p.y > 50) velocities[i].y *= -1;
+				if (p.z < -50 || p.z > 50) velocities[i].z *= -1;
+
+				positions[i * 3] = p.x;
+				positions[i * 3 + 1] = p.y;
+				positions[i * 3 + 2] = p.z;
+
+				// Проверяем расстояние до других точек
+				for (let j = i + 1; j < numPoints; j++) {
+					const p2 = points[j];
+					const distance = p.distanceTo(p2);
+					if (distance < maxDistance) {
+						linePositions.push(p.x, p.y, p.z, p2.x, p2.y, p2.z);
+					}
+				}
+			}
+			
+			// Обновляем геометрию
+			pointsGeometry.attributes.position.needsUpdate = true;
+			linesGeometry.setAttribute('position', new THREE.Float32BufferAttribute(linePositions, 3));
+
+			// Плавное вращение сцены за мышью
+			scene.rotation.y += (mouse.x * 0.2 - scene.rotation.y) * 0.05;
+			scene.rotation.x += (-mouse.y * 0.2 - scene.rotation.x) * 0.05;
 
 			renderer.render(scene, camera);
 			animationFrameId = requestAnimationFrame(tick);
@@ -107,6 +125,11 @@
 			window.removeEventListener('mousemove', onMouseMove);
 			window.removeEventListener('resize', onResize);
 			cancelAnimationFrame(animationFrameId);
+			pointsGeometry.dispose();
+			// --- ✨ ИСПРАВЛЕНИЕ: Опечатка в названии переменной ---
+			pointsMaterial.dispose();
+			linesGeometry.dispose();
+			linesMaterial.dispose();
 		};
 	});
 </script>

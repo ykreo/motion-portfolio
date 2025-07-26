@@ -3,7 +3,7 @@
 </script>
 
 <svelte:head>
-	<title>{$t('nav.resume')} — YKREO</title>
+	<title>{$t('nav.resume')} — {$t('hero.title')}</title>
 </svelte:head>
 
 <div class="resume-container">

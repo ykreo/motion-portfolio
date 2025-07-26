@@ -30,5 +30,11 @@
 			"static": "Статика"
 		},
 		"placeholder": "Галерея в процесі створення."
+	},
+	"controls": {
+		"telegram": "Телеграм",
+		"linkedin": "LinkedIn",
+		"hide_cursor": "Сховати кастомний курсор",
+		"show_cursor": "Показати кастомний курсор"
 	}
 }

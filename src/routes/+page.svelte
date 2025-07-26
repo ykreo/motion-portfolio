@@ -1,18 +1,25 @@
 <script lang="ts">
 	import { animateTitle } from '$lib/utils/actions';
 	import { t } from 'svelte-i18n';
+
+	// Просто создаем реактивную переменную для текста заголовка.
+	// Когда язык меняется, эта переменная будет обновляться.
+	const titleText = $derived($t('hero.title'));
 </script>
 
 <svelte:head>
-	<title>YKREO — {$t('hero.title')}</title>
+	<title>YKREO — {titleText}</title>
 	<meta name="description" content="Портфолио, где дизайн встречается с кодом." />
 </svelte:head>
 
 <div class="page-container">
 	<section id="home" class="hero-container">
-		<h1 class="title" use:animateTitle>
-			{$t('hero.title')}
-		</h1>
+		{#key titleText}
+			<h1 class="title" use:animateTitle>
+				{titleText}
+			</h1>
+		{/key}
+
 		<p class="subtitle">
 			{$t('hero.subtitle')}
 		</p>
@@ -25,6 +32,7 @@
 </div>
 
 <style>
+	/* Стили остаются без изменений */
 	.page-container > section {
 		min-height: 100vh;
 		display: flex;
@@ -57,7 +65,6 @@
 		font-family: var(--font-primary);
 		font-size: clamp(2.5rem, 8vw, 5rem);
 		margin-bottom: 3rem;
-		/* Метка для плавной анимации перехода */
 		view-transition-name: works-title;
 	}
 

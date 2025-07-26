@@ -41,7 +41,7 @@
 </script>
 
 <svelte:head>
-	<title>{$t('nav.works')} — YKREO</title>
+	<title>{$t('nav.works')} — {$t('hero.title')}</title>
 </svelte:head>
 
 <div class="works-container">

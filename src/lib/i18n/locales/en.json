@@ -30,5 +30,11 @@
 			"static": "Static"
 		},
 		"placeholder": "The gallery is under construction."
+	},
+	"controls": {
+		"telegram": "Telegram",
+		"linkedin": "LinkedIn",
+		"hide_cursor": "Hide custom cursor",
+		"show_cursor": "Show custom cursor"
 	}
 }

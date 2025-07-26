@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { isCustomCursorEnabled } from '$lib/stores';
 	import { MousePointer, MousePointer2, Linkedin, Send } from 'lucide-svelte';
+	import { t } from 'svelte-i18n';
 
 	const TELEGRAM_URL = 'https://t.me/ykreo';
 	const LINKEDIN_URL = 'https://www.linkedin.com/in/converticube/';
@@ -15,8 +16,8 @@
 		href={TELEGRAM_URL}
 		target="_blank"
 		rel="noopener noreferrer"
-		aria-label="Telegram"
-		title="Telegram"
+		aria-label={$t('controls.telegram')}
+		title={$t('controls.telegram')}
 	>
 		<Send size={20} />
 	</a>
@@ -24,8 +25,8 @@
 		href={LINKEDIN_URL}
 		target="_blank"
 		rel="noopener noreferrer"
-		aria-label="LinkedIn"
-		title="LinkedIn"
+		aria-label={$t('controls.linkedin')}
+		title={$t('controls.linkedin')}
 	>
 		<Linkedin size={20} />
 	</a>
@@ -33,8 +34,8 @@
 	<button
 		class="cursor-toggle"
 		onclick={toggleCursor}
-		aria-label="Переключить вид курсора"
-		title="Переключить вид курсора"
+		aria-label={$t($isCustomCursorEnabled ? 'controls.hide_cursor' : 'controls.show_cursor')}
+		title={$t($isCustomCursorEnabled ? 'controls.hide_cursor' : 'controls.show_cursor')}
 	>
 		{#if $isCustomCursorEnabled}
 			<MousePointer size={20} />

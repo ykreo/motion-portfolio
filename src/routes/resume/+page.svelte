@@ -19,11 +19,11 @@
 		justify-content: center;
 		align-items: center;
 		text-align: center;
-		padding: 5rem 2rem;
+		padding: 5rem clamp(1.5rem, 5vw, 2rem);
 	}
 	h1 {
 		font-family: var(--font-primary);
-		font-size: clamp(3rem, 10vw, 6.5rem);
+		font-size: clamp(2.5rem, 8vw, 5.5rem); /* Аналогично */
 		margin-bottom: 2rem;
 	}
 </style>

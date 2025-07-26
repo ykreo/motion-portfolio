@@ -1,9 +1,8 @@
 <script lang="ts">
 	import { animateTitle } from '$lib/utils/actions';
 	import { t } from 'svelte-i18n';
+	import { fly } from 'svelte/transition'; // Импортируем fly
 
-	// Просто создаем реактивную переменную для текста заголовка.
-	// Когда язык меняется, эта переменная будет обновляться.
 	const titleText = $derived($t('hero.title'));
 </script>
 
@@ -20,9 +19,9 @@
 			</h1>
 		{/key}
 
-		<p class="subtitle">
-			{$t('hero.subtitle')}
-		</p>
+		<p class="subtitle" in:fly={{ y: 20, duration: 800, delay: 400 }}>
+	{$t('hero.subtitle')}
+</p>
 	</section>
 
 	<section id="works-promo" class="works-promo-container">
@@ -40,7 +39,7 @@
 		justify-content: center;
 		align-items: center;
 		text-align: center;
-		padding: 5rem 2rem;
+		padding: 5rem clamp(1.5rem, 5vw, 2rem); /* Делаем боковые отступы адаптивными */
 	}
 
 	.hero-container {
@@ -77,9 +76,10 @@
 		border-radius: 50px;
 		padding: 1rem 2.5rem;
 		text-decoration: none;
-		transition: transform 0.3s ease;
+		transition: transform 0.3s ease, box-shadow 0.3s ease; /* Добавляем transition для box-shadow */
 	}
 	.cta-button:hover {
 		transform: scale(1.05);
+		box-shadow: 0 0 25px rgba(242, 255, 74, 0.5); /* Добавляем свечение */
 	}
 </style>
